@@ -6,7 +6,7 @@ Code repository for the paper:
 
 ---
 
-![Model Illustration](Fig.svg)
+
 
 ## Executive Summary
 
