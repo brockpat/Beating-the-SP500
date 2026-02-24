@@ -1,7 +1,8 @@
 # Beating the S&P 500 — The Virtue of Transaction Costs (VoT)
 
 This repository contains the code for my paper **“Beating the S&P 500: The Virtue of Transaction Costs” (Feb 18, 2026)**.  
-Goal: show that **stock return forecasts using machine learning can be translated into an investable portfolio in a liquid large-cap universe** once portfolio construction is done with **transaction-cost-aware optimisation**. The main idea is that transaction costs **regularise** trading, so that the resulting portfolio doesn't overtrade on the noise machine learning forecasts which is responsible for the portfolio's performance.
+
+I show that **stock return forecasts using machine learning can be translated into an investable portfolio in a liquid large-cap universe** once portfolio construction is done with **transaction-cost-aware optimisation**. The main idea is that transaction costs **regularise** trading, so that the resulting portfolio doesn't overtrade on the noise machine learning forecasts which is responsible for the portfolio's performance.
 
 ---
 
