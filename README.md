@@ -125,21 +125,22 @@ $$
 
 Subject to:
 
-Long Only & Concentration Limit
+### Long-Only and Concentration Limit
+
 $$
 0 \le \pi_t \le \pi_{\max}
 $$
 
-Fully invested
+### Fully Invested
+
 $$
 \mathbf{1}^\top \pi_t = 1
 $$
 
-Volatility Benchmarking
+### Volatility Benchmarking
+
 $$
-\sqrt{\pi_t^\top \Sigma_t \pi_t}
-\le
-\sigma_t^B
+\sqrt{\pi_t^\top \Sigma_t \pi_t} \le \sigma_t^B
 $$
 
 ---
@@ -147,15 +148,15 @@ $$
 ## Variable Definitions
 
 | Symbol | Meaning |
-|--------|---------|
-| $ \pi_t $ | Portfolio weights |
-| $ \hat{r}_{t+1} $ | Predicted returns |
-| $ w_t $ | Wealth (AUM) |
-| $ G_{t-1} $ | Drift adjustment matrix |
-| $ \Lambda_t $ | Price impact (Kyle’s $ \lambda $) |
-| $ \Sigma_t $ | Covariance matrix |
-| $ \sigma_t^B $ | Benchmark volatility (EWMA) |
-| $ \pi_{\max} $ | Concentration limit |
+|--------|----------|
+| $\pi_t$ | Portfolio weights |
+| $\hat{r}_{t+1}$ | Predicted returns |
+| $w_t$ | Wealth (AUM) |
+| $G_{t-1}$ | Drift adjustment matrix |
+| $\Lambda_t$ | Price impact (Kyle’s $\lambda$) |
+| $\Sigma_t$ | Covariance matrix |
+| $\sigma_t^B$ | Benchmark volatility (EWMA) |
+| $\pi_{\max}$ | Concentration limit |
 
 ---
 
