@@ -1,21 +1,12 @@
 # Beating the S&P 500 — The Virtue of Transaction Costs (VoT)
 
-Code repository for the paper:
+Machine learning (ML) stock return forecasts can often have strong **gross** performance, but may easily fail **net of transaction costs**, especially in liquid large-cap universes.
 
-**“Beating the S&P 500: The Virtue of Transaction Costs”**
+This paper shows:
 
----
+> **ML stock return forecasts remain economically valuable in active S&P 500 stocks when the portfolio construction is transaction-cost-aware.**
 
-## Executive Summary
-
-Machine learning (ML) return forecasts often look strong **gross**, but fail **net of transaction costs** in liquid large-cap universes.
-
-This project shows:
-
-> **ML forecasts remain economically valuable in active S&P 500 stocks when portfolio construction is transaction-cost-aware.**
-
-Quadratic price impact does not merely reduce returns mechanically — it **regularises trading**, preventing forecast noise from being translated into excessive turnover.
-
+Transaction costs enter the portfolio selection problem quadratically. Their main virtue is that they **regularises trading**, thereby filtering out the noise from ML stock return predictions. 
 ---
 
 ## Key Idea
@@ -26,7 +17,7 @@ Naive forecast → trade mappings (e.g. ranks/deciles):
 
 - Ignore turnover
 - Ignore liquidity
-- Translate weak cross-sectional differences into aggressive reallocations
+- Translate weak cross-sectional predicted return differences into aggressive reallocations
 - Collapse net of costs
 
 ### The solution: Predict–Then–Optimise
@@ -35,7 +26,7 @@ A modular two-stage pipeline:
 
 ### 1️⃣ Predict (Forecast Returns)
 
-One-month-ahead expected returns using:
+One-month-ahead expected returns. Four machine learning algorithms are considered:
 
 - **XGBoost (XGB)**
 - **Transformer (TF)**
@@ -46,7 +37,7 @@ Forecasting is **fully separated** from portfolio optimisation.
 
 ### 2️⃣ Optimise (Cost-Aware Portfolio Construction)
 
-Weights are chosen subject to:
+Portfolio weights are chosen subject to:
 
 - Long-only
 - Fully invested
@@ -87,12 +78,12 @@ Transaction costs enter the objective as a quadratic penalty term.
 
 - Costs scale with **trade size²**
 - Larger AUM ⇒ stronger penalty
-- Acts like an **endogenous Ridge penalty on trades**
+- Acts like an **endogenous Ridge-like penalty on active trades**
 
-- Large transaction costs:
-- Shrink noisy trades
-- Reduce overtrading
-- Improve Sharpe and Information ratios
+Large transaction costs:
+- Shrink active trades
+- Thereby reducing overtrading
+- Leading to higher Sharpe and Information ratios
 
 Transaction costs become a **discipline mechanism**, not just an execution drag.
 
@@ -118,7 +109,7 @@ Notes
 
 IPCA delivers:
 
-- Higher return than the S&P500
+- Higher return than the S&P 500
 - Similar volatility  
 - Higher Sharpe ratio  
 - Strong benchmark-relative performance (IR = 0.512)  
@@ -134,7 +125,7 @@ IPCA delivers:
 
 ## Optimisation Problem
 
-Each month, choose long-only weights:
+Each month, choose portfolio weights:
 
 $$
 \begin{aligned}
@@ -146,10 +137,9 @@ $$
 \end{aligned}
 $$
 
-
 Subject to:
 
-### Long-Only and Concentration Limit
+### Long-Only and (optional) Concentration Limit
 
 $$
 0 \le \pi_t \le \pi_{\max}
@@ -172,10 +162,10 @@ $$
 |--------|----------|
 | $\pi_t$ | Portfolio weights |
 | $\hat{r}_{t+1}$ | Predicted returns |
-| $w_t$ | Wealth (AUM) |
+| $w_t$ | Fund's wealth (AUM) |
 | $G_{t-1}$ | Drift adjustment matrix |
 | $\Lambda_t$ | Price impact (Kyle’s $\lambda$) |
-| $\Sigma_t$ | Covariance matrix |
+| $\Sigma_t$ | Covariance matrix of stock returns |
 | $\sigma_t^B$ | S&P500 volatility (EWMA estimate) |
 | $\pi_{\max}$ | Concentration limit |
 
@@ -211,9 +201,9 @@ $$
 Two layers of regularisation:
 
 1. **ML shrinkage for return predictions** (early stopping / Ridge / tree regularisation)
-2. **Transaction cost shrinkage for portfolio weights** 
+2. **Transaction cost shrinkage for active trades** 
 
-The second layer reduces aggressive trading on noisy machine learning return predictions and filters out the (small) predictive signal in machine learning return forecasts.
+The second layer reduces aggressive trading based on noisy machine learning return predictions and successfully filters out the (small) predictive signal in these forecasts.
 
 ---
 
