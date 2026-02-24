@@ -4,9 +4,16 @@ Machine learning (ML) stock return forecasts can often have strong **gross** per
 
 This paper shows:
 
-> **ML stock return forecasts remain economically valuable in active S&P 500 stocks when the portfolio construction is transaction-cost-aware.**
+> **ML stock return forecasts remain economically valuable in active S&P 500 stocks even net of transaction costs.**
 
-Transaction costs enter the portfolio selection problem quadratically. Their main virtue is that they **regularises trading**, thereby filtering out the noise from ML stock return predictions. 
+Main mechanism:
+
+> Using predicted stock returns, optimising the portfolio **as if transaction costs are large** improves benchmark-relative performance.
+
+Reason:
+
+> Transaction costs are a (quadratic) penalty. They filter out the noise from ML return predictions and avoid overtrading on noise. Thereby, transaction costs act as a layer of regularisation
+
 ---
 
 ## Key Idea
