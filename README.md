@@ -1,4 +1,4 @@
-# Beating the S&P 500 — The Virtue of Transaction Costs (VoT)
+# 📈 Beating the S&P 500 — The Virtue of Transaction Costs (VoT)
 
 Machine learning (ML) return forecasts often exhibit strong **gross** backtest performance.  
 Yet in liquid large-cap universes such as the S&P 500, these gains frequently disappear **net of transaction costs**.  
@@ -22,7 +22,7 @@ In short, I use transaction costs as an economically grounded layer of regularis
 
 ---
 
-## Key Idea
+## 💡 Key Idea
 
 Naive forecast are mapped to trades using ranks/deciles.
 
@@ -33,7 +33,7 @@ Problems:
 - Ignores transaction costs
 - Collapse net of costs
 
-### The solution: Predict–Then–Optimise
+### 🛠️ The solution: Predict–Then–Optimise
 
 A modular two-stage pipeline:
 
@@ -61,7 +61,7 @@ Portfolio weights are chosen subject to:
 
 ---
 
-## Evaluation Setting (Deliberately Demanding)
+## 🎯 Evaluation Setting (Deliberately Demanding)
 
 | Dimension | Setting |
 |------------|----------|
@@ -81,11 +81,11 @@ This avoids:
 
 ---
 
-## Main Result
+## 🏆 Main Result
 
 > Optimising **as if transaction costs are large** improves benchmark-relative performance.
 
-### Core Mechanism: The Virtue of Transaction Costs (VoT)
+### ⚙️ Core Mechanism: The Virtue of Transaction Costs (VoT)
 
 Transaction costs enter the objective as a quadratic penalty term.
 
@@ -100,7 +100,7 @@ Large transaction costs:
 
 Transaction costs become a **discipline mechanism**, not just an execution drag.
 
-### Backtest Results (Net of Transaction Costs)
+### 📊 Backtest Results (Net of Transaction Costs)
 
 IPCA is the best performing algorithm. All results are fully out of sample.
 
@@ -134,9 +134,9 @@ IPCA delivers:
 
 ---
 
-# Portfolio Construction
+# 🧮 Portfolio Construction
 
-## Optimisation Problem
+## 🧩 Optimisation Problem
 
 Each month, choose portfolio weights:
 
@@ -182,7 +182,7 @@ $$
 | $\sigma_t^B$ | S&P500 volatility (EWMA estimate) |
 | $\pi_{\max}$ | Concentration limit |
 
-## Implementation Details
+## 🔧 Implementation Details
 
 ### Constraint Handling
 
@@ -208,7 +208,7 @@ Solve the portfolio choice problem numerically.
 
 ---
 
-## Why This Works
+## 🧠 Why This Works
 
 Two layers of regularisation:
 
@@ -219,9 +219,9 @@ The second layer reduces aggressive trading based on noisy machine learning retu
 
 ---
 
-# Repository Structure
+# 📂 Repository Structure
 
-### Data & Preprocessing
+### 🗂️ Data & Preprocessing
 
 - `Data_Preprocessing.py`  
   Builds monthly signals dataset
@@ -240,7 +240,7 @@ The second layer reduces aggressive trading based on noisy machine learning retu
 
 ---
 
-### Return Forecasting
+### 🤖 Return Forecasting
 
 - `XGBoost.py`
 - `Transformer.py`
@@ -251,7 +251,7 @@ Each produces 1-month-ahead fully out of sample forecasted stock returns.
 
 ---
 
-### Portfolio & Results
+### 📊 Portfolio & Results
 
 - `Portfolio_Optimiser.py`  
   Cost-aware constrained optimisation
@@ -264,7 +264,7 @@ Each produces 1-month-ahead fully out of sample forecasted stock returns.
 
 ---
 
-# Conceptual Contribution
+# 🎓 Conceptual Contribution
 
 This repository demonstrates:
 
@@ -275,7 +275,7 @@ This repository demonstrates:
 
 ---
 
-# Bottom Line
+# 🏁 Bottom Line
 
 Transaction costs are not just friction.
 
