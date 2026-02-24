@@ -62,7 +62,7 @@ subject to
 $$
 \begin{aligned}
 0 \le \pi_{t-} \le \pi_{\max} 
-& \quad \text{(Long-only \& concentration limit)} \\
+& \quad \text{(Long-only and concentration limit)} \\
 \mathbf{1}^\top \pi_{t-} = 1 
 & \quad \text{(Fully invested)} \\
 \sqrt{
