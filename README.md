@@ -6,6 +6,8 @@ Code repository for the paper:
 
 ---
 
+![Model Illustration](fig.svg)
+
 ## Executive Summary
 
 Machine learning (ML) return forecasts often look strong **gross**, but fail **net of transaction costs** in liquid large-cap universes.
