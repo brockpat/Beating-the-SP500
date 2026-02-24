@@ -155,7 +155,7 @@ $$
 | $G_{t-1}$ | Drift adjustment matrix |
 | $\Lambda_t$ | Price impact (Kyle’s $\lambda$) |
 | $\Sigma_t$ | Covariance matrix |
-| $\sigma_t^B$ | Benchmark volatility (EWMA) |
+| $\sigma_t^B$ | S&P500 volatility (EWMA estimate) |
 | $\pi_{\max}$ | Concentration limit |
 
 ---
