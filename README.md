@@ -80,9 +80,12 @@ This avoids:
 
 Transaction costs enter the objective as:
 
-\[
-w_t (\pi_t - G_{t-1}\pi_{t-1})^\top \Lambda_t (\pi_t - G_{t-1}\pi_{t-1})
-\]
+$$
+w_t
+(\pi_t - G_{t-1}\pi_{t-1})^\top
+\Lambda_t
+(\pi_t - G_{t-1}\pi_{t-1})
+$$
 
 Because impact is quadratic:
 
@@ -109,30 +112,33 @@ Transaction costs become a **discipline mechanism**, not just an execution drag.
 
 Each month, choose long-only weights:
 
-\[
+$$
 \max_{\pi_t}
+\;
 \hat{r}_{t+1}^\top \pi_t
 -
-w_t (\pi_t - G_{t-1}\pi_{t-1})^\top
+w_t
+(\pi_t - G_{t-1}\pi_{t-1})^\top
 \Lambda_t
 (\pi_t - G_{t-1}\pi_{t-1})
-\]
+$$
+
 
 Subject to:
 
-\[
+$$
 0 \le \pi_t \le \pi_{\max}
-\]
+$$
 
-\[
+$$
 \mathbf{1}^\top \pi_t = 1
-\]
+$$
 
-\[
+$$
 \sqrt{\pi_t^\top \Sigma_t \pi_t}
 \le
 \sigma_t^B
-\]
+$$
 
 ---
 
@@ -140,14 +146,14 @@ Subject to:
 
 | Symbol | Meaning |
 |--------|---------|
-| \( \pi_t \) | Portfolio weights |
-| \( \hat{r}_{t+1} \) | Predicted returns |
-| \( w_t \) | Wealth (AUM) |
-| \( G_{t-1} \) | Drift adjustment matrix |
-| \( \Lambda_t \) | Price impact (Kyle’s λ) |
-| \( \Sigma_t \) | Covariance matrix |
-| \( \sigma_t^B \) | Benchmark volatility (EWMA) |
-| \( \pi_{\max} \) | Concentration limit |
+| $ \pi_t $ | Portfolio weights |
+| $ \hat{r}_{t+1} $ | Predicted returns |
+| $ w_t $ | Wealth (AUM) |
+| $ G_{t-1} $ | Drift adjustment matrix |
+| $ \Lambda_t $ | Price impact (Kyle’s $ \lambda $) |
+| $ \Sigma_t $ | Covariance matrix |
+| $ \sigma_t^B $ | Benchmark volatility (EWMA) |
+| $ \pi_{\max} $ | Concentration limit |
 
 ---
 
