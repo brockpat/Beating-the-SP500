@@ -37,3 +37,18 @@ Quadratic price impact makes active rebalancing costly **in proportion to trade 
 Backtest results from monthly trading from 2004-2024: **optimising as if costs are large improves benchmark-relative performance** by shrinking noisy trades (less overtrading). Hence, acting as if transaction costs are large strictly improves performance. 
 
 ---
+
+## Repository File Overview
+
+- `General_Functions.py` — Shared modules
+- `Data_Preprocessing.py` — Builds the core monthly signals dataset from raw inputs (e.g., CRSP/market/risk-free data)
+- `Feature_Engineering.py` — Standardises signals cross-sectionally (z-scores/ranks) and prepares model-ready feature sets.
+- `SP500_Constituents.py` — Constructs the monthly active S&P 500 membership panel used to define the investable universe.
+- `SPY_return.py` — Downloads/constructs SPY benchmark return series for benchmarking and volatility targeting.
+- `Estimate Covariance Matrix.py` — Estimates stock return covariance/correlation structures for portfolio optimisation inputs.
+- `XGBoost.py` — Stock return forecasts using XGBoost.
+- `Transformer.py` — Stock return forecasts using a Transformer.
+- `IPCA.py` — Stock return forecasts using IPCA.
+- `RFF.py` — Stock return forecasts using Random Fourier Feature Ridge Regression.
+- `Portfolio_Optimiser.py` — Converts machine learning return forecasts into constrained long-only portfolios with volatility controls and transaction-cost-aware optimisation.
+- `Results.py` — Aggregates backtests and computes/report performance analytics (Sharpe/IR/drawdowns/turnover, comparisons, and robustness outputs).
