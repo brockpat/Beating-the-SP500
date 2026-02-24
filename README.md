@@ -114,7 +114,7 @@ Each month, choose long-only weights:
 
 $$
 \max_{\pi_t}
-\;
+
 \hat{r}_{t+1}^\top \pi_t
 -
 w_t
