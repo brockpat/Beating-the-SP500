@@ -152,19 +152,19 @@ $$
 
 Subject to:
 
-### Long-Only and (optional) Concentration Limit
+#### Long-Only and (optional) Concentration Limit
 
 $$
 0 \le \pi_t \le \pi_{\max}
 $$
 
-### Fully Invested
+#### Fully Invested
 
 $$
 \mathbf{1}^\top \pi_t = 1
 $$
 
-### Volatility Benchmarking
+#### Volatility Benchmarking
 
 $$
 \sqrt{\pi_t^\top \Sigma_t \pi_t} \le \sigma_t^B
