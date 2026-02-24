@@ -51,9 +51,7 @@ Thus, at the beginning of each month $t-$, the manager solves:
 
 $$
 \begin{aligned}
-\max_{\pi_{t-}} \quad 
-& \mathbb{E}[r_t \mid \mathcal{F}_{t-1}]^\top \pi_{t-} \\
-&\quad - w_{t-} (\pi_{t-} - G_{t-1}\pi_{t-1})^\top 
+\max_{\pi_{t-}} \hat{r}_{t+1}^{\top} \pi_{t-} - w_{t-} (\pi_{t-} - G_{t-1}\pi_{t-1})^\top 
 \mathbb{E}[\Lambda_{t-} \mid \mathcal{F}_{t-1}]
 (\pi_{t-} - G_{t-1}\pi_{t-1})
 \end{aligned}
