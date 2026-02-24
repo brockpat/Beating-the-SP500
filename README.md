@@ -47,39 +47,37 @@ I implement a **predict-then-optimise** portfolio construction pipeline that map
 For each month, the optimiser chooses **long-only weights that sum to 1** on the active S&P 500 constituents. Thus, at each beginning of the month, the following objective is solved
 Thus, at the beginning of each month $t-$, the manager solves:
 
+At the beginning of each month \( t \), the portfolio weights \( \pi_t \) are chosen by solving:
+
 $$
-\begin{aligned}
-\max_{\pi_{t-}} \quad 
-& \mathbb{E}[r_t \mid \mathcal{F}_{t-1}]^\top \pi_{t-} \\
-&\quad - w_{t-} (\pi_{t-} - G_{t-1}\pi_{t-1})^\top 
-\mathbb{E}[\Lambda_{t-} \mid \mathcal{F}_{t-1}]
-(\pi_{t-} - G_{t-1}\pi_{t-1})
-\end{aligned}
+\max_{\pi_t}
+\; \hat{r}_t^\top \pi_t
+- w_t (\pi_t - \bar{\pi}_t)^\top \Lambda_t (\pi_t - \bar{\pi}_t)
 $$
+
+where
+
+- \( \hat{r}_t = \mathbb{E}[r_t \mid \mathcal{F}_{t-1}] \) are 1-month ahead return forecasts  
+- \( \bar{\pi}_t = G_{t-1}\pi_{t-1} \) are the drifted (no-trade) portfolio weights  
+- \( \Lambda_t \) is the diagonal matrix of Kyle’s lambda (price impact)  
+- \( w_t \) is assets under management (AUM), scaling implementation costs  
 
 subject to
 
 $$
-\begin{aligned}
-0 \le \pi_{t-} \le \pi_{\max} 
-& \quad \text{(Long-only \& concentration limit)} \\
-\mathbf{1}^\top \pi_{t-} = 1 
-& \quad \text{(Fully invested)} \\
-\sqrt{
-\pi_{t-}^\top 
-\mathbb{E}[\Sigma_t \mid \mathcal{F}_{t-1}] 
-\pi_{t-}
-}
-\le \sigma_t^B 
-& \quad \text{(Volatility benchmarking)}
-\end{aligned}
+0 \le \pi_t \le \pi_{\max}
 $$
 
-where $\sigma_t^B$ is the benchmark return volatility, estimated using an exponentially weighted moving average (EWMA).
+$$
+\mathbf{1}^\top \pi_t = 1
+$$
 
-**Fully invested** means there is no outside asset.\*
+$$
+\pi_t^\top \Sigma_t \pi_t \le \sigma_{B,t}^2
+$$
 
-where the variance the S&P500 returns estimated by their standard deviation using an **exponentially weighted moving average (EWMA)**.
+where \( \Sigma_t = \mathbb{E}[\Sigma_t \mid \mathcal{F}_{t-1}] \) is the ex-ante covariance matrix and  
+\( \sigma_{B,t}^2 \) is the EWMA-estimated variance of the S&P 500 benchmark.
 
 In the implementation, the optimisation uses **softmax** to enforce the simplex constraint ($\bm{1}^\top\bm{\pi}_{t-}=1$, $\bm{\pi}_{t-}\ge 0$) and applies **ReLU penalty terms** for the remaining inequality constraints (concentration limits / variance cap). Transaction costs are modelled as **quadratic price impact (Kyle’s $\lambda$)** on deviations from the **drifted no-trade baseline** $\bm{G}_{t-1}\bm{\pi}_{t-1}$, scaled by AUM $w_{t-}$.
 
