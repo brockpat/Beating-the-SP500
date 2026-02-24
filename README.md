@@ -79,12 +79,7 @@ This avoids:
 
 ## Main Result
 
-> Optimising **as if costs are large** improves benchmark-relative performance.
-
-Large assumed costs:
-- Shrink noisy trades
-- Reduce overtrading
-- Improve Sharpe and Information ratios
+> Optimising **as if transaction costs are large** improves benchmark-relative performance.
 
 ### Core Mechanism: The Virtue of Transaction Costs (VoT)
 
@@ -94,11 +89,16 @@ Transaction costs enter the objective as a quadratic penalty term.
 - Larger AUM ⇒ stronger penalty
 - Acts like an **endogenous Ridge penalty on trades**
 
+- Large transaction costs:
+- Shrink noisy trades
+- Reduce overtrading
+- Improve Sharpe and Information ratios
+
 Transaction costs become a **discipline mechanism**, not just an execution drag.
 
-### Results (Net of Transaction Costs)
+### Backtest Results (Net of Transaction Costs)
 
-IPCA is the best performing algorithm.
+IPCA is the best performing algorithm. All results are fully out of sample.
 
 | Portfolio | μ | σ | Sharpe | TO | IR | MaxD | DCap | α |
 |------------|------|------|--------|------|------|--------|------|------|
@@ -167,9 +167,6 @@ $$
 \sqrt{\pi_t^\top \Sigma_t \pi_t} \le \sigma_t^B
 $$
 
----
-
-## Variable Definitions
 
 | Symbol | Meaning |
 |--------|----------|
@@ -216,7 +213,7 @@ Two layers of regularisation:
 1. **ML shrinkage for return predictions** (early stopping / Ridge / tree regularisation)
 2. **Transaction cost shrinkage for portfolio weights** 
 
-The second layer filters economically insignificant trades.
+The second layer reduces aggressive trading on noisy machine learning return predictions and filters out the (small) predictive signal in machine learning return forecasts.
 
 ---
 
@@ -248,7 +245,7 @@ The second layer filters economically insignificant trades.
 - `IPCA.py`
 - `RFF.py`
 
-Each produces 1-month-ahead expected returns.
+Each produces 1-month-ahead fully out of sample forecasted stock returns.
 
 ---
 
