@@ -4,8 +4,155 @@ Created on Tue Apr 22 13:38:52 2025
 
 @author: Patrick
 
-This file computes the covariance matrix as in (37).
+===============================================================================
+OVERVIEW: Estimation of the Conditional Stock Return Covariance Matrix (Σ_t)
+===============================================================================
+
+This file implements the Barra-style covariance estimator.
+The conditional covariance matrix of stock returns is constructed as
+
+    Σ_t = S_t V(f_t) S_t' + diag(V(ε_t)),
+
+where:
+    - S_t         : matrix of factor loadings at time t
+    - V(f_t)      : factor covariance matrix
+    - V(ε_t)      : idiosyncratic variance vector (diagonal)
+
+Instead of constructing the full N×N covariance matrix directly, the code
+estimates and stores its three building blocks separately for efficiency and
+numerical stability.
+
+-------------------------------------------------------------------------------
+1) FACTOR LOADINGS S_t (Characteristic-Based Risk Exposures)
+-------------------------------------------------------------------------------
+
+Step 1: Cross-sectional feature ranking
+    - All stock characteristics are converted to percentile ranks within each
+      month (cross-sectional ECDF transform).
+    - Missing values are filled with 0.5 (neutral rank).
+    - This standardizes characteristics across time and scale.
+
+Step 2: Cluster construction
+    - Individual characteristics are grouped into thematic clusters.
+    - For each cluster:
+        • Apply direction adjustment (if necessary).
+        • Take the cross-sectional mean of ranked characteristics.
+    - Result: One exposure per cluster per stock.
+
+Step 3: Cross-sectional standardization
+    - Cluster exposures are z-scored within each month.
+    - FF12 industry dummies are included as additional factors.
+
+The final factor loading matrix S_t consists of:
+    [FF12 industry dummies | cluster z-score exposures]
+
+These exposures are lagged one month when merged with daily returns to ensure
+only observable information is used.
+
+-------------------------------------------------------------------------------
+2) DAILY FACTOR RETURN ESTIMATION
+-------------------------------------------------------------------------------
+
+For each trading day d, the following cross-sectional regression is estimated:
+
+    r_{i,d} = S_{i,t} f_d + ε_{i,d}
+
+where:
+    - r_{i,d} : daily excess return
+    - S_{i,t} : month-t factor loadings
+    - f_d     : daily factor returns
+    - ε_{i,d} : residual (specific return)
+
+Estimation details:
+    - OLS solved via (X'X)^{-1}X'y
+    - Falls back to pseudo-inverse if singular
+    - Stored outputs:
+        • Daily factor returns f_d
+        • Daily residuals ε_{i,d}
+
+-------------------------------------------------------------------------------
+3) FACTOR COVARIANCE MATRIX V(f_t)
+-------------------------------------------------------------------------------
+
+For each month-end date t:
+
+    • Use last 2520 daily observations (10 years)
+    • Apply exponentially weighted moving average (EWMA)
+
+Half-life parameters:
+    - Correlations: 378 trading days
+    - Variances:    126 trading days
+
+Estimation procedure:
+    1) Estimate weighted correlation matrix using half-life 378.
+    2) Estimate weighted variances using half-life 126.
+    3) Construct covariance matrix as:
+
+           V(f_t) = D^{1/2} Corr(f_t) D^{1/2}
+
+       where D contains the estimated factor variances.
+
+    4) Convert daily covariance to monthly by multiplying by 21.
+
+The separation of correlation and variance estimation improves numerical
+stability and helps maintain positive semi-definiteness.
+
+-------------------------------------------------------------------------------
+4) IDIOSYNCRATIC VARIANCE diag(V(ε_t))
+-------------------------------------------------------------------------------
+
+For each stock i:
+
+    • Estimate EWMA volatility of daily residuals ε_{i,d}
+    • Half-life: 126 trading days
+    • Initial variance: first 63 valid observations
+
+Data-quality requirement:
+    - At least 200 non-missing residual observations within last 252 days.
+    - Otherwise, impute using:
+        1) Median residual volatility within same size group
+        2) If still missing, overall cross-sectional median
+
+Monthly aggregation:
+    - Keep last trading day of each month
+    - Convert daily variance to monthly by multiplying by 21
+
+-------------------------------------------------------------------------------
+5) FINAL OUTPUT: BARRA COVARIANCE OBJECT
+-------------------------------------------------------------------------------
+
+For each month t, the dictionary `barra_cov[t]` stores:
+
+    {
+        "fct_load" : S_t              (stock × factor loadings matrix),
+        "fct_cov"  : V(f_t)           (factor covariance matrix),
+        "ivol_vec" : diag(V(ε_t))     (vector of idiosyncratic variances)
+    }
+
+The full covariance matrix can be reconstructed as:
+
+    Σ_t = S_t V(f_t) S_t' + diag(ivol_vec)
+
+This structured representation is computationally efficient and suitable
+for portfolio optimization, risk forecasting, and mean-variance allocation.
+
+-------------------------------------------------------------------------------
+KEY DESIGN CHOICES
+-------------------------------------------------------------------------------
+
+• 10-year rolling window (2520 trading days)
+• Separate half-lives for correlations and variances
+• EWMA smoothing for both factor and idiosyncratic components
+• Cross-sectional normalization of characteristics
+• Industry controls (FF12)
+• Robust imputation for missing residual volatility
+
+This implementation closely follows the paper’s covariance specification
+and provides a stable, economically interpretable risk model suitable for
+large cross-sectional equity universes.
+===============================================================================
 """
+
 
 #%% Libraries
 
@@ -22,11 +169,6 @@ import sqlite3
 import numpy as np
 from tqdm import tqdm
 from numba import njit
-
-#import dask.dataframe as dd
-#https://docs.dask.org/en/stable/generated/dask.dataframe.DataFrame.apply.html
-#https://docs.dask.org/en/latest/generated/dask.dataframe.api.GroupBy.apply.html
-#import swifter
 
 #Import user-specific functions
 import General_Functions as GF
