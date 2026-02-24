@@ -106,7 +106,7 @@ IPCA is the best performing algorithm. All results are fully out of sample.
 
 | Portfolio | μ | σ | Sharpe | TO | IR | MaxD | DCap | α |
 |------------|------|------|--------|------|------|--------|------|------|
-| **S&P 500** | 0.110 | 0.147 | 0.645 | • | 0.000 | -0.509 | 1.000 | • |
+| **S&P 500** | 0.110 | 0.147 | 0.645 | • | 0.000 | -0.509 | 1.000 | 0.000 |
 | **IPCA** | 0.142 | 0.158 | 0.802 | 0.054 | 0.512 | -0.473 | 0.973 | 0.031 |
 
 Notes
@@ -115,7 +115,7 @@ Notes
 - **σ**: Annualised volatility  
 - **Sharpe**: Annualised Sharpe ratio  
 - **IR**: Annualised Information Ratio (vs. S&P 500)  
-- **α**: Annualised abnormal return (CAPM alpha)  
+- **α**: Annualised abnormal return over the S&P 500  
 - **TO**: Average monthly turnover  
 - **MaxD**: Maximum drawdown  
 - **DCap**: Drawdown capture ratio
