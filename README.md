@@ -182,8 +182,6 @@ $$
 | $\sigma_t^B$ | S&P500 volatility (EWMA estimate) |
 | $\pi_{\max}$ | Concentration limit |
 
----
-
 ## Implementation Details
 
 ### Constraint Handling
