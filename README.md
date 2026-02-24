@@ -66,6 +66,7 @@ Weights are chosen subject to:
 | Sample | 2004–2024 |
 | Benchmark | S&P 500 (SPY total return) |
 | Performance | Net of transaction costs |
+| Portfolio | Long Only & Fully Invested |
 
 This avoids:
 
