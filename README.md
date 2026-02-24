@@ -45,36 +45,39 @@ I implement a **predict-then-optimise** portfolio construction pipeline that map
 ### Optimisation problem (myopic, cost-aware, benchmarked risk)
 
 For each month, the optimiser chooses **long-only weights that sum to 1** on the active S&P 500 constituents. Thus, at each beginning of the month, the following objective is solved
+Thus, at the beginning of each month $t-$, the manager solves:
 
 $$
-maximise
-\; \hat{r}_t' \pi_t
-- w_t (\pi_t - \pi_{t-1})' \Lambda_t (\pi_t - \pi_{t-1})
+\begin{aligned}
+\max_{\pi_{t-}} \quad 
+& \mathbb{E}[r_t \mid \mathcal{F}_{t-1}]^\top \pi_{t-} \\
+&\quad - w_{t-} (\pi_{t-} - G_{t-1}\pi_{t-1})^\top 
+\mathbb{E}[\Lambda_{t-} \mid \mathcal{F}_{t-1}]
+(\pi_{t-} - G_{t-1}\pi_{t-1})
+\end{aligned}
 $$
-
-where
-
-- \( \hat{r}_t = \mathbb{E}[r_t \mid \mathcal{F}_{t-1}] \) are 1-month ahead return forecasts  
-- \( \bar{\pi}_t = G_{t-1}\pi_{t-1} \) are the drifted (no-trade) portfolio weights  
-- \( \Lambda_t \) is the diagonal matrix of Kyle’s lambda (price impact)  
-- \( w_t \) is assets under management (AUM), scaling implementation costs  
 
 subject to
 
 $$
-0 \le \pi_t \le \pi_{\max}
+\begin{aligned}
+0 \le \pi_{t-} \le \pi_{\max} 
+& \quad \text{(Long-only \& concentration limit)} \\
+\mathbf{1}^\top \pi_{t-} = 1 
+& \quad \text{(Fully invested)} \\
+\sqrt{
+\pi_{t-}^\top 
+\mathbb{E}[\Sigma_t \mid \mathcal{F}_{t-1}] 
+\pi_{t-}
+}
+\le \sigma_t^B 
+& \quad \text{(Volatility benchmarking)}
+\end{aligned}
 $$
 
-$$
-\mathbf{1}^\top \pi_t = 1
-$$
+where $\sigma_t^B$ is the benchmark return volatility, estimated using an exponentially weighted moving average (EWMA).
 
-$$
-\pi_t^\top \Sigma_t \pi_t \le \sigma_{B,t}^2
-$$
-
-where \( \Sigma_t = \mathbb{E}[\Sigma_t \mid \mathcal{F}_{t-1}] \) is the ex-ante covariance matrix and  
-\( \sigma_{B,t}^2 \) is the EWMA-estimated variance of the S&P 500 benchmark.
+**Fully invested** means there is no outside asset.\*
 
 where the variance the S&P500 returns estimated by their standard deviation using an **exponentially weighted moving average (EWMA)**.
 
