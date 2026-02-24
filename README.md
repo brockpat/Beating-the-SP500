@@ -44,9 +44,9 @@ One-month-ahead expected returns. Four machine learning algorithms are considere
 - **XGBoost (XGB)**
 - **Transformer (TF)**
 - **Instrumented Principal Component Analysis (IPCA)**
-- **Random Fourier Features (RFF)**
+- **Random Fourier Feature Regression (RFF)**
 
-Forecasting is **fully separated** from portfolio optimisation.
+Forecasting is **fully separated** from the portfolio optimisation.
 
 ### 2️⃣ Optimise (Cost-Aware Portfolio Construction)
 
@@ -296,7 +296,7 @@ Each produces 1-month-ahead fully out of sample forecasted stock returns.
 
 # 🎓 Conceptual Contribution
 
-This repository demonstrates:
+This paper demonstrates:
 
 - ML forecasts contain real information in large-cap equities.
 - The bottleneck is not prediction.
