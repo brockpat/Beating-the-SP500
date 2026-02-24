@@ -18,19 +18,19 @@ Reason:
 > Transaction costs enter as a quadratic penalty on active trades. This shrinks forecast-induced reallocations, prevents aggressive rebalancing, and reduces turnover.  
 > By penalising noisy trades, transaction costs filter out spurious forecast variation and extract the small but persistent signal in ML return predictions.
 
-In short, I use transaction costs as an economically grounded layer of regularisation on the portfolio construction.
+In short, I use transaction costs as an economically grounded layer of regularisation on the portfolio construction This solves two problems at once: Return prediction noise is filtered out and transaction costs are accounted for.
 
 ---
 
 ## Key Idea
 
-### The failure mode
+Naive forecast are mapped to trades using ranks/deciles.
 
-Naive forecast → trade mappings (e.g. ranks/deciles):
-
+Problems:
 - Ignore turnover
 - Ignore liquidity
 - Translate weak cross-sectional predicted return differences into aggressive reallocations
+- Ignores transaction costs
 - Collapse net of costs
 
 ### The solution: Predict–Then–Optimise
