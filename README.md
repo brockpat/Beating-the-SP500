@@ -201,6 +201,7 @@ $$
 - Scale with AUM
 
 ### Optimisation
+Solve the portfolio choice problem numerically.
 
 - PyTorch
 - Gradient ascent (Adam)
