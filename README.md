@@ -6,8 +6,6 @@ Code repository for the paper:
 
 ---
 
-
-
 ## Executive Summary
 
 Machine learning (ML) return forecasts often look strong **gross**, but fail **net of transaction costs** in liquid large-cap universes.
@@ -105,6 +103,38 @@ Large assumed costs:
 - Improve Sharpe and Information ratios
 
 Transaction costs become a **discipline mechanism**, not just an execution drag.
+
+## Performance Highlight — IPCA (Best Performing Model)
+
+All performance statistics are **annualised** (μ, σ, Sharpe, IR, α).
+
+| Portfolio | μ | σ | Sharpe | TO | IR | MaxD | DCap | α |
+|------------|------|------|--------|------|------|--------|------|------|
+| **S&P 500** | 0.110 | 0.147 | 0.645 | • | 0.000 | -0.509 | 1.000 | • |
+| **IPCA** | 0.142 | 0.158 | 0.802 | 0.054 | 0.512 | -0.473 | 0.973 | 0.031 |
+
+### Notes
+
+- **μ**: Annualised mean return  
+- **σ**: Annualised volatility  
+- **Sharpe**: Annualised Sharpe ratio  
+- **IR**: Annualised Information Ratio (vs. S&P 500)  
+- **α**: Annualised abnormal return (factor-adjusted)  
+- **TO**: Average monthly turnover  
+- **MaxD**: Maximum drawdown  
+- **DCap**: Drawdown capture ratio  
+
+IPCA delivers:
+
+- Higher return  
+- Similar volatility  
+- Higher Sharpe ratio  
+- Strong benchmark-relative performance (IR = 0.512)  
+- Low turnover (5.4% per month)  
+- Positive annualised alpha 
+
+
+![Model Illustration](Fig.svg)
 
 ---
 
