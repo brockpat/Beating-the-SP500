@@ -16,8 +16,9 @@ Main mechanism:
 Reason:
 
 > Transaction costs enter as a quadratic penalty on active trades. This shrinks forecast-induced reallocations, prevents aggressive rebalancing, and reduces turnover.  
-> By penalising noisy trades, transaction costs filter out spurious forecast variation and extract the small but persistent signal in ML return predictions.  
-> In short, transaction costs act as an economically grounded layer of regularisation on the portfolio construction.
+> By penalising noisy trades, transaction costs filter out spurious forecast variation and extract the small but persistent signal in ML return predictions.
+
+In short, I use transaction costs as an economically grounded layer of regularisation on the portfolio construction.
 
 ---
 
