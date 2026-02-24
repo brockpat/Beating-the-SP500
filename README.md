@@ -219,6 +219,36 @@ The second layer reduces aggressive trading based on noisy machine learning retu
 
 ---
 
+# 🧩 Signals Used
+
+The predictive signals combine **accounting-based characteristics** and **market-based characteristics**, constructed from **Compustat** (fundamentals) and **CRSP** (prices and returns).
+
+### 📊 Accounting-Based Signals  
+Capture firm fundamentals such as:
+- Profitability  
+- Investment and asset growth  
+- Accruals  
+- Leverage and capital structure  
+- Cash flow dynamics  
+
+### 📈 Market-Based Signals  
+Capture price-driven effects such as:
+- Momentum (multiple horizons)  
+- Volatility (idiosyncratic and total)  
+- Liquidity and turnover  
+- Beta and downside risk  
+
+### ⏳ Information Timing & Look-Ahead Control
+
+All signals are constructed to strictly avoid a look-ahead bias.
+
+- Accounting information is assumed to become publicly available **four months after the fiscal period end**.
+- Return forecasts use only information that would have been available to an investor at that time.
+
+This ensures the backtests reflect a **realistic, implementable information set**.
+
+---
+
 # 📂 Repository Structure
 
 ### 🗂️ Data & Preprocessing
