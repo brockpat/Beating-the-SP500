@@ -47,9 +47,9 @@ I implement a **predict-then-optimise** portfolio construction pipeline that map
 For each month, the optimiser chooses **long-only weights that sum to 1** on the active S&P 500 constituents. Thus, at each beginning of the month, the following objective is solved
 
 $$
-\max_{\pi_t}
-\; \hat{r}_t^\top \pi_t
-- w_t (\pi_t - \bar{\pi}_t)^\top \Lambda_t (\pi_t - \bar{\pi}_t)
+maximise
+\; \hat{r}_t' \pi_t
+- w_t (\pi_t - \pi_{t-1})' \Lambda_t (\pi_t - \pi_{t-1})
 $$
 
 where
