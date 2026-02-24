@@ -136,9 +136,9 @@ IPCA delivers:
 
 # 🧮 Portfolio Construction
 
-## 🧩 Optimisation Problem
+## 🧩 Portfolio Choice Problem
 
-Each month, choose portfolio weights:
+Each month, a fund chooses portfolio weights according to:
 
 $$
 \begin{aligned}
