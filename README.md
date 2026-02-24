@@ -113,27 +113,29 @@ Transaction costs become a **discipline mechanism**, not just an execution drag.
 Each month, choose long-only weights:
 
 $$
-\max_{\pi_t}
-
-\hat{r}_{t+1}^\top \pi_t
--
-w_t
-(\pi_t - G_{t-1}\pi_{t-1})^\top
+\begin{aligned}
+\max_{\pi_t} \quad
+& \hat{r}_{t+1}^\top \pi_t \\
+&- w_t (\pi_t - G_{t-1}\pi_{t-1})^\top
 \Lambda_t
 (\pi_t - G_{t-1}\pi_{t-1})
+\end{aligned}
 $$
 
 
 Subject to:
 
+Long Only & Concentration Limit
 $$
 0 \le \pi_t \le \pi_{\max}
 $$
 
+Fully invested
 $$
 \mathbf{1}^\top \pi_t = 1
 $$
 
+Volatility Benchmarking
 $$
 \sqrt{\pi_t^\top \Sigma_t \pi_t}
 \le
