@@ -39,7 +39,7 @@ One-month-ahead expected returns using:
 
 - **XGBoost (XGB)**
 - **Transformer (TF)**
-- **Instrumented PCA (IPCA)**
+- **Instrumented Principal Component Analysis (IPCA)**
 - **Random Fourier Features (RFF)**
 
 Forecasting is **fully separated** from portfolio optimisation.
@@ -76,24 +76,7 @@ This avoids:
 
 ---
 
-## Core Mechanism: The Virtue of Transaction Costs (VoT)
-
-Transaction costs enter the objective as:
-
-$$
-w_t
-(\pi_t - G_{t-1}\pi_{t-1})^\top
-\Lambda_t
-(\pi_t - G_{t-1}\pi_{t-1})
-$$
-
-Because impact is quadratic:
-
-- Costs scale with **trade size²**
-- Larger AUM ⇒ stronger penalty
-- Acts like an **endogenous Ridge penalty on trades**
-
-### Main Result
+## Main Result
 
 > Optimising **as if costs are large** improves benchmark-relative performance.
 
@@ -102,36 +85,44 @@ Large assumed costs:
 - Reduce overtrading
 - Improve Sharpe and Information ratios
 
+### Core Mechanism: The Virtue of Transaction Costs (VoT)
+
+Transaction costs enter the objective as a quadratic penalty term.
+
+- Costs scale with **trade size²**
+- Larger AUM ⇒ stronger penalty
+- Acts like an **endogenous Ridge penalty on trades**
+
 Transaction costs become a **discipline mechanism**, not just an execution drag.
 
-## Performance Highlight — IPCA (Best Performing Model)
+### Results (Net of Transaction Costs)
 
-All performance statistics are **annualised** (μ, σ, Sharpe, IR, α).
+IPCA is the best performing algorithm.
 
 | Portfolio | μ | σ | Sharpe | TO | IR | MaxD | DCap | α |
 |------------|------|------|--------|------|------|--------|------|------|
 | **S&P 500** | 0.110 | 0.147 | 0.645 | • | 0.000 | -0.509 | 1.000 | • |
 | **IPCA** | 0.142 | 0.158 | 0.802 | 0.054 | 0.512 | -0.473 | 0.973 | 0.031 |
 
-### Notes
+Notes
 
 - **μ**: Annualised mean return  
 - **σ**: Annualised volatility  
 - **Sharpe**: Annualised Sharpe ratio  
 - **IR**: Annualised Information Ratio (vs. S&P 500)  
-- **α**: Annualised abnormal return (factor-adjusted)  
+- **α**: Annualised abnormal return (CAPM alpha)  
 - **TO**: Average monthly turnover  
 - **MaxD**: Maximum drawdown  
-- **DCap**: Drawdown capture ratio  
+- **DCap**: Drawdown capture ratio
 
 IPCA delivers:
 
-- Higher return  
+- Higher return than the S&P500
 - Similar volatility  
 - Higher Sharpe ratio  
 - Strong benchmark-relative performance (IR = 0.512)  
 - Low turnover (5.4% per month)  
-- Positive annualised alpha 
+- High annualised alpha 
 
 
 ![Model Illustration](Fig.svg)
