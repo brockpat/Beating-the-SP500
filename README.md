@@ -1,10 +1,13 @@
 # Beating the S&P 500 — The Virtue of Transaction Costs (VoT)
 
-Machine learning (ML) stock return forecasts can often have strong **gross** performance, but may easily fail **net of transaction costs**, especially in liquid large-cap universes.
+Machine learning (ML) return forecasts often exhibit strong **gross** backtest performance.  
+Yet in liquid large-cap universes such as the S&P 500, these gains frequently disappear **net of transaction costs**.  
 
 This paper shows:
 
-> **ML stock return forecasts remain economically valuable in active S&P 500 stocks even net of transaction costs.**
+> **ML stock return forecasts remain economically valuable in active S&P 500 stocks — even net of realistic transaction costs — when the portfolio construction is properly disciplined.**
+
+The key contribution is a *forecast-to-trade mapping* that filters out the noise from ML stock return predictions.
 
 Main mechanism:
 
@@ -12,7 +15,9 @@ Main mechanism:
 
 Reason:
 
-> Transaction costs are a (quadratic) penalty. They filter out the noise from ML return predictions and avoid overtrading on noise. Thereby, transaction costs act as a layer of regularisation
+> Transaction costs enter as a quadratic penalty on active trades. This shrinks forecast-induced reallocations, prevents aggressive rebalancing, and reduces turnover.  
+> By penalising noisy trades, transaction costs filter out spurious forecast variation and extract the small but persistent signal in ML return predictions.  
+> In short, transaction costs act as an economically grounded layer of regularisation on the portfolio construction.
 
 ---
 
