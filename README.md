@@ -2,7 +2,7 @@
 
 Code repository for the paper:
 
-**“Beating the S&P 500: The Virtue of Transaction Costs” (Feb 18, 2026)**
+**“Beating the S&P 500: The Virtue of Transaction Costs”**
 
 ---
 
