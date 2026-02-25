@@ -5,7 +5,7 @@ Yet in liquid large-cap universes such as the S&P 500, these gains frequently di
 
 This paper shows:
 
-> **ML stock return forecasts remain economically valuable in active S&P 500 stocks — even net of realistic transaction costs — when the portfolio construction is properly disciplined.**
+> **ML stock return forecasts remain economically valuable in S&P 500 stocks — even net of realistic transaction costs — when the portfolio construction is properly disciplined.**
 
 The key contribution is a *forecast-to-trade mapping* that filters out the noise from ML stock return predictions.
 
@@ -24,7 +24,7 @@ In short, I use transaction costs as an economically grounded layer of regularis
 
 ## 💡 Key Idea
 
-Naive forecast are mapped to trades using ranks/deciles.
+Naive forecasts are mapped to trades using ranks/deciles.
 
 Problems:
 - Ignore turnover
@@ -50,11 +50,11 @@ Forecasting is **fully separated** from the portfolio optimisation.
 
 ### 2️⃣ Optimise (Cost-Aware Portfolio Construction)
 
-Portfolio weights are chosen subject to:
+Each month, portfolio weights are chosen subject to:
 
 - Long-only
 - Fully invested
-- Active S&P 500 constituents only
+- Current S&P 500 constituents only
 - Volatility benchmarking (market-like risk)
 - Quadratic price-impact transaction costs
 - Optional concentration limits
@@ -65,7 +65,7 @@ Portfolio weights are chosen subject to:
 
 | Dimension | Setting |
 |------------|----------|
-| Universe | Active S&P 500 constituents |
+| Universe | Dynamic S&P 500 constituents |
 | Frequency | Monthly rebalancing |
 | Sample | 2004–2024 |
 | Benchmark | S&P 500 (SPY total return) |
