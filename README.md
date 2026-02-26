@@ -1,3 +1,5 @@
+This project is the third chapter of my PhD thesis in quantitative finance.
+
 # 📈 Beating the S&P 500 — The Virtue of Transaction Costs (VoT)
 
 Machine learning (ML) return forecasts often exhibit strong **gross** backtest performance.  
