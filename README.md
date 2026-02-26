@@ -221,7 +221,7 @@ The second layer reduces aggressive trading based on noisy machine learning retu
 
 # 🧩 Signals Used
 
-The predictive signals combine **accounting-based characteristics** and **market-based characteristics**, constructed from **Compustat** (fundamentals) and **CRSP** (prices and returns).
+The predictive signals combine **accounting-based characteristics** and **market-based characteristics**, constructed from **Compustat** (fundamentals) and **CRSP** (prices and returns). Moreover, I use the Fama-French 12 industry dummy variables. In total, I have 130 predictive signals.
 
 ### 📊 Accounting-Based Signals  
 Capture firm fundamentals such as:
