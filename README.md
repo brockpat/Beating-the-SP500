@@ -178,7 +178,7 @@ $$
 | $\pi_t$ | Portfolio weights |
 | $\hat{r}_{t+1}$ | Predicted returns |
 | $w_t$ | Fund's wealth (AUM) |
-| $G_{t-1}$ | Drift adjustment matrix |
+| $G_{t-1}$ | Portfolio drift adjustment matrix |
 | $\Lambda_t$ | Price impact (Kyle’s $\lambda$) |
 | $\Sigma_t$ | Covariance matrix of stock returns |
 | $\sigma_t^B$ | S&P500 volatility (EWMA estimate) |
