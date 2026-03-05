@@ -9,7 +9,7 @@ This paper shows:
 
 > **ML stock return forecasts remain economically valuable in S&P 500 stocks — even net of realistic transaction costs — when the portfolio construction is properly disciplined.**
 
-The key contribution is a *forecast-to-trade mapping* that filters out the noise from ML stock return predictions.
+The key contribution is a *forecast-to-trade mapping* that filters out the noise from ML stock return predictions. This filter can be applied to any given or previously obtained return prediction algorithm.
 
 Main mechanism:
 
