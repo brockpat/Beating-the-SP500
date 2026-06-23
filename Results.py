@@ -1308,9 +1308,6 @@ df_metrics = (pd.DataFrame(sharpe_results)
 
 print(df_metrics.to_latex(index=False, escape=False, float_format="%.3f"))
 
-
-
-
 #%% Plot Cumulative Return Ratio
 
 """
@@ -1334,7 +1331,6 @@ Act_as_equalTo_Pay_as = False
 
 # Which transaction cost regime to plot
 tc_scaler = 0.01
-
 
 # ---- Save Figure ----
 Save_Figure = True
@@ -1692,6 +1688,261 @@ latex_str += r"""\end{tabular}
 
 print(latex_str)
 
+#%% Rolling Sharpe Ratio
+
+"""
+Rolling annualized Sharpe ratios for:
+    - XGB
+    - Transformer
+    - IPCA
+    - RFF
+    - S&P 500
+
+Monthly data:
+    Sharpe_t = sqrt(12) * mean(excess returns over window) / std(excess returns over window)
+"""
+
+from functools import reduce
+
+# -----------------------------
+# Settings
+# -----------------------------
+
+rolling_window = 60      # 36, 60, or 120 are reasonable
+min_periods = rolling_window
+
+Act_as_equalTo_Pay_as = False
+tc_scaler = 0.01
+portfolios = get_strats(path = path, df_wealth = df_wealth, df_kl = df_kl,
+                        flatMaxPiVal = 1.0,     # pi_max 
+                        volScaler = 1.0,        # Volatility Benchmarking
+                        )
+
+Save_Figure = True
+plot_filename = path + f"Plots/RollingSharpe_{rolling_window}m_ActasLarge.pdf"
+
+fontsize = 18
+
+colors = {
+    "XGB":          "#1f77b4",
+    "Transformer":  "#658A0B",
+    "IPCA":         "#967969",
+    "RFF":          "#d62728",
+    "S&P 500":      "black",
+}
+
+# -----------------------------
+# Helper functions
+# -----------------------------
+
+def compute_rolling_sharpe(df, return_col, risk_free, window=60, min_periods=None):
+    """
+    Computes annualized rolling Sharpe ratio from monthly returns.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Must contain ['eom', return_col].
+    return_col : str
+        Monthly return column.
+    risk_free : pd.DataFrame
+        Must contain ['eom', 'rf'], where rf is monthly risk-free rate in decimals.
+    window : int
+        Rolling window length in months.
+    min_periods : int or None
+        Minimum observations required. If None, equals window.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ['eom', 'excess_ret', f'rolling_sharpe_{window}m']
+    """
+
+    if min_periods is None:
+        min_periods = window
+
+    out = (
+        df[['eom', return_col]]
+        .copy()
+        .sort_values('eom')
+        .merge(risk_free[['eom', 'rf']], on='eom', how='left')
+    )
+
+    if out['rf'].isna().any():
+        missing_dates = out.loc[out['rf'].isna(), 'eom'].dt.strftime('%Y-%m-%d').tolist()
+        raise ValueError(f"Missing risk-free rates for dates: {missing_dates[:10]}")
+
+    out['excess_ret'] = out[return_col] - out['rf']
+
+    roll_mean = out['excess_ret'].rolling(
+        window=window,
+        min_periods=min_periods
+    ).mean()
+
+    roll_std = out['excess_ret'].rolling(
+        window=window,
+        min_periods=min_periods
+    ).std(ddof=1)
+
+    sr_col = f'rolling_sharpe_{window}m'
+
+    out[sr_col] = np.sqrt(12) * roll_mean / roll_std
+
+    # Avoid infinite values if rolling volatility is zero
+    out.loc[roll_std == 0, sr_col] = np.nan
+
+    return out[['eom', 'excess_ret', sr_col]]
+
+
+def get_profit_and_return_col(portfolios, strat, Act_as_equalTo_Pay_as, tc_scaler):
+    """
+    Extracts monthly strategy returns from your portfolios dictionary.
+    """
+
+    if Act_as_equalTo_Pay_as:
+        # Actual transaction cost regime
+        ret_col = "ret_net"
+        df_profit = portfolios["actual"][strat][tc_scaler]['Profit'][['eom', ret_col]].copy()
+
+    else:
+        # Act as large, pay as selected transaction cost scaler
+        ret_col = f"ret_net_{tc_scaler}"
+        df_profit = portfolios["hypo"][strat]['Profit'][['eom', ret_col]].copy()
+
+    return df_profit, ret_col
+
+
+# -----------------------------
+# Compute rolling Sharpe ratios
+# -----------------------------
+
+rolling_sharpe_dfs = []
+
+for strat in ['XGB', 'Transformer', 'IPCA', 'RFF']:
+
+    df_profit, ret_col = get_profit_and_return_col(
+        portfolios=portfolios,
+        strat=strat,
+        Act_as_equalTo_Pay_as=Act_as_equalTo_Pay_as,
+        tc_scaler=tc_scaler
+    )
+
+    df_rs = compute_rolling_sharpe(
+        df=df_profit,
+        return_col=ret_col,
+        risk_free=risk_free,
+        window=rolling_window,
+        min_periods=min_periods
+    )
+
+    sr_col = f'rolling_sharpe_{rolling_window}m'
+
+    df_rs = df_rs[['eom', sr_col]].rename(columns={sr_col: strat})
+
+    rolling_sharpe_dfs.append(df_rs)
+
+
+# S&P 500 / SPY benchmark
+df_spy_rs = compute_rolling_sharpe(
+    df=df_spy[['eom', 'ret']],
+    return_col='ret',
+    risk_free=risk_free,
+    window=rolling_window,
+    min_periods=min_periods
+)
+
+sr_col = f'rolling_sharpe_{rolling_window}m'
+
+df_spy_rs = df_spy_rs[['eom', sr_col]].rename(columns={sr_col: 'S&P 500'})
+
+rolling_sharpe_dfs.append(df_spy_rs)
+
+
+# Merge all rolling Sharpe ratios into one dataframe
+df_rolling_sharpe = reduce(
+    lambda left, right: left.merge(right, on='eom', how='outer'),
+    rolling_sharpe_dfs
+).sort_values('eom').reset_index(drop=True)
+
+
+# -----------------------------
+# Compute Sharpe ratio differences
+# Strategy Sharpe minus S&P 500 Sharpe
+# -----------------------------
+
+strategy_cols = ['XGB', 'Transformer', 'IPCA', 'RFF']
+
+df_sharpe_diff = df_rolling_sharpe[['eom']].copy()
+
+for strat in strategy_cols:
+    df_sharpe_diff[strat] = (
+        df_rolling_sharpe[strat] - df_rolling_sharpe['S&P 500']
+    )
+
+
+# -----------------------------
+# Plot rolling Sharpe ratio differences
+# -----------------------------
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+for col in strategy_cols:
+    ax.plot(
+        df_sharpe_diff['eom'],
+        df_sharpe_diff[col],
+        label=f"{col}",
+        color=colors[col],
+        alpha=0.9,
+        linewidth=2.2 if col == "IPCA" else 1.5,
+        zorder=5 if col == "IPCA" else 2
+    )
+
+ax.axhline(
+    0,
+    color='black',
+    linewidth=2.5,
+    linestyle='-',
+    alpha=1.0,
+    zorder=3
+)
+
+ax.set_ylabel(
+    f"{rolling_window}-Month Rolling Sharpe Difference\nStrategy minus S&P 500",
+    fontsize=fontsize
+)
+
+ax.grid(visible=True, which='major', color='gray', linestyle='-', alpha=0.4, zorder=0)
+ax.grid(visible=True, which='minor', color='gray', linestyle=':', alpha=0.2, zorder=0)
+
+# Start plot at the first date where at least one Sharpe difference is available
+valid_dates = df_sharpe_diff.loc[
+    df_sharpe_diff[strategy_cols].notna().any(axis=1),
+    'eom'
+]
+
+ax.set_xlim(valid_dates.min(), valid_dates.max())
+
+ax.xaxis.set_major_locator(mdates.YearLocator(1))
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+plt.setp(ax.get_xticklabels(), rotation=90, ha="center")
+
+ax.tick_params(axis="both", which="major", labelsize=fontsize)
+ax.legend(
+    loc="upper center",
+    bbox_to_anchor=(0.5, -0.15),
+    ncol=len(strategy_cols),   # single row
+    fontsize=fontsize,
+    frameon=False
+)
+
+plt.tight_layout()
+
+if Save_Figure:
+    plt.savefig(plot_filename, dpi=300)
+
+plt.show()
+
+
 #%% Portfolio Weights deviation
 
 # Load Portfolios
@@ -1716,18 +1967,6 @@ df_strat['pi_sp500'] = df_strat.groupby('eom')['me_lag'].transform(lambda x: x/x
 df_strat = df_strat.drop('me_lag',axis = 1)
 
 df_strat['weight_dif'] = np.abs(df_strat['pi']-df_strat['pi_sp500'])
-
-
-
-
-
-
-
-
-
-
-
-
 
 #%% Panel Regression Lambda
 
@@ -2506,12 +2745,13 @@ portfolios = get_strats(path = path, df_wealth = df_wealth, df_kl = df_kl,
                         volScaler = 1.0,        # Volatility Benchmarking
                         )
 strats = ["XGB", "Transformer", "IPCA", "RFF"]
-tc_scale = 0.01 
+tc_scaler = 0.01 
 
 # ---- Read in FF5 ----
 FF_market = True # Results are basically the same
 df_FF5 = (pd.read_csv(path + "Data/FF5.csv")
           .assign(eom = lambda df: pd.to_datetime(df['dateff']))
+          .assign(eom = lambda df: df['eom'] + pd.offsets.MonthEnd(0))
           .drop('dateff', axis = 1)
           )
 
@@ -2601,13 +2841,15 @@ for col in df_mom_fact.drop('eom',axis = 1).columns:
 """
 
 # Return column
-ret_col = f"ret_net_{tc_scale}" 
+ret_col = f"ret_net_{tc_scaler}" 
 
 # list of factors used
 regime = cols_self 
 
 # Container for results
 results = {strat: {} for strat in strats}
+
+long_only = False # If False, Regress strat return - S&P 500 return on factors (market bet is zero)
 
 for strat in strats:
     
@@ -2623,7 +2865,10 @@ for strat in strats:
             ).dropna()
     
     X = data[regime].assign(constant = 1)
-    y = data['retMsp500'] # yields same result data[ret_col] - data['ret_sp500']
+    if long_only:
+        y = data['retMrf'] 
+    else:
+        y = data['retMsp500'] # yields same result data[ret_col] - data['ret_sp500']
     
     model = sm.OLS(y, X)
 
@@ -2689,6 +2934,274 @@ lines += [
 
 latex_table = "\n".join(lines)
 print(latex_table)
+
+#%% Rolling Fama-French
+
+"""
+Rolling FF5 regression:
+
+    r_{p,t} - r_{f,t}
+        = alpha_t
+        + beta_MKT * MKT_t
+        + beta_SMB * SMB_t
+        + beta_HML * HML_t
+        + beta_RMW * RMW_t
+        + beta_CMA * CMA_t
+        + error_t
+
+The rolling alpha is annualized as:
+
+    alpha_ann = 12 * alpha_monthly
+"""
+
+from matplotlib.ticker import PercentFormatter
+
+# -----------------------------
+# Settings
+# -----------------------------
+rolling_window = 60      # 36, 60, or 120 are reasonable
+min_periods = rolling_window
+
+Act_as_equalTo_Pay_as = False
+tc_scaler = 0.01
+portfolios = get_strats(path = path, df_wealth = df_wealth, df_kl = df_kl,
+                        flatMaxPiVal = 1.0,     # pi_max 
+                        volScaler = 1.0,        # Volatility Benchmarking
+                        )
+ret_col = f"ret_net_{tc_scaler}"
+strats = ["XGB", "Transformer", "IPCA", "RFF"]
+
+
+# Baseline FF5 only
+df_FF5 = (pd.read_csv(path + "Data/FF5.csv")
+          .assign(eom = lambda df: pd.to_datetime(df['dateff']))
+          .assign(eom = lambda df: df['eom'] + pd.offsets.MonthEnd(0))
+          .drop('dateff', axis = 1)
+          )
+
+regime = ['mktrf', 'smb', 'hml'] + ['rmw', 'cma', 'umd']
+
+use_hac = True
+hac_lags = 6
+
+Save_Figure = True
+plot_filename = path + f"Plots/Rolling_FF5_Alpha_{rolling_window}m_tc{tc_scaler}.pdf"
+
+fontsize = 18
+
+colors = {
+    "XGB":          "#1f77b4",
+    "Transformer":  "#658A0B",
+    "IPCA":         "#967969",
+    "RFF":          "#d62728",
+}
+
+# -----------------------------
+# Rolling regression function
+# -----------------------------
+
+def rolling_ff_regression_alpha(
+    data,
+    y_col,
+    factor_cols,
+    window=60,
+    min_periods=None,
+    use_hac=True,
+    hac_lags=6,
+):
+    """
+    Computes rolling Fama-French alpha.
+
+    Parameters
+    ----------
+    data : pd.DataFrame
+        Must contain ['eom', y_col] and factor_cols.
+    y_col : str
+        Dependent variable, usually portfolio excess return.
+    factor_cols : list
+        Factor columns used in the regression.
+    window : int
+        Rolling window in months.
+    min_periods : int
+        Minimum observations required.
+    use_hac : bool
+        Whether to compute HAC standard errors.
+        Point estimates are the same as plain OLS.
+    hac_lags : int
+        HAC lag length.
+
+    Returns
+    -------
+    pd.DataFrame
+        Rolling regression output with monthly and annualized alpha.
+    """
+
+    if min_periods is None:
+        min_periods = window
+
+    data = (
+        data[['eom', y_col] + factor_cols]
+        .dropna()
+        .sort_values('eom')
+        .reset_index(drop=True)
+    )
+
+    rows = []
+
+    for end_idx in range(len(data)):
+
+        start_idx = max(0, end_idx - window + 1)
+        window_data = data.iloc[start_idx:end_idx + 1].copy()
+
+        if len(window_data) < min_periods:
+            continue
+
+        y = window_data[y_col]
+        X = sm.add_constant(window_data[factor_cols], has_constant='add')
+
+        model = sm.OLS(y, X)
+
+        if use_hac:
+            reg = model.fit(
+                cov_type='HAC',
+                cov_kwds={'maxlags': hac_lags}
+            )
+        else:
+            reg = model.fit()
+
+        alpha_monthly = reg.params['const']
+        alpha_annualized = 12 * alpha_monthly
+
+        rows.append({
+            'eom': window_data['eom'].iloc[-1],
+            'alpha_monthly': alpha_monthly,
+            'alpha_ann': alpha_annualized,
+            'alpha_tstat': reg.tvalues['const'],
+            'alpha_pval': reg.pvalues['const'],
+            'rsquared': reg.rsquared,
+            'nobs': int(reg.nobs),
+        })
+
+    return pd.DataFrame(rows)
+
+
+# -----------------------------
+# Estimate rolling FF5 alphas
+# -----------------------------
+
+rolling_alpha_results = {}
+rolling_alpha_long = []
+
+for strat in strats:
+
+    # Extract Portfolio Return
+    df_profit = portfolios["hypo"][strat]['Profit']
+
+    # Combine portfolio returns with FF5 factors
+    data = (
+        df_profit[['eom', ret_col]]
+        .merge(df_FF5[['eom', 'rf'] + regime], on='eom', how='left')
+        .merge(df_spy[['eom','ret']].rename(columns = {'ret':'ret_sp500'}), on = 'eom', how = 'left')
+        .assign(retMsp500 = lambda df: df[ret_col] - df['ret_sp500'])
+        .assign(retMrf=lambda df: df[ret_col] - df['rf'])
+        .dropna()
+        .sort_values('eom')
+        .reset_index(drop=True)
+    )
+
+    df_alpha = rolling_ff_regression_alpha(
+        data=data,
+        y_col='retMrf',
+        factor_cols=regime,
+        window=rolling_window,
+        min_periods=min_periods,
+        use_hac=use_hac,
+        hac_lags=hac_lags,
+    )
+
+    df_alpha['strat'] = strat
+
+    rolling_alpha_results[strat] = df_alpha
+    rolling_alpha_long.append(df_alpha)
+
+df_rolling_alpha_long = (
+    pd.concat(rolling_alpha_long, ignore_index=True)
+    .sort_values(['strat', 'eom'])
+    .reset_index(drop=True)
+)
+
+df_rolling_alpha = (
+    df_rolling_alpha_long
+    .pivot(index='eom', columns='strat', values='alpha_ann')
+    .reset_index()
+)
+
+
+# -----------------------------
+# Plot annualized rolling alpha
+# -----------------------------
+
+fig, ax = plt.subplots(figsize=(10, 6))
+
+for_strats = ['XGB', 'Transformer', 'IPCA', 'RFF']
+
+for strat in for_strats:
+    ax.plot(
+    df_rolling_alpha['eom'],
+    df_rolling_alpha[strat],
+    label=strat,
+    color=colors[strat],
+    alpha=0.9,
+    linewidth=2.2 if strat == "IPCA" else 1.5,
+    zorder=5 if strat == "IPCA" else 2
+)
+
+ax.axhline(
+    0,
+    color='black',
+    linewidth=2.5,
+    linestyle='-',
+    alpha=1.0,
+    zorder=3
+)
+
+ax.set_ylabel(
+    f"{rolling_window}-Month Rolling FF5 + MOM Alpha",
+    fontsize=fontsize
+)
+
+# Show alpha as annual percentage
+ax.yaxis.set_major_formatter(PercentFormatter(xmax=1.0))
+
+ax.grid(visible=True, which='major', color='gray', linestyle='-', alpha=0.4, zorder=0)
+ax.grid(visible=True, which='minor', color='gray', linestyle=':', alpha=0.2, zorder=0)
+
+# Match rolling-Sharpe x-axis design
+valid_dates = df_rolling_alpha.loc[
+    df_rolling_alpha[for_strats].notna().any(axis=1),
+    'eom'
+]
+
+ax.set_xlim(valid_dates.min(), valid_dates.max())
+
+ax.xaxis.set_major_locator(mdates.YearLocator(1))
+ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+plt.setp(ax.get_xticklabels(), rotation=90, ha="center")
+
+ax.tick_params(axis="both", which="major", labelsize=fontsize)
+ax.legend(
+    loc="upper center",
+    bbox_to_anchor=(0.5, -0.15),
+    ncol=len(for_strats),   # single row
+    fontsize=fontsize,
+    frameon=False
+)
+plt.tight_layout()
+
+if Save_Figure:
+    plt.savefig(plot_filename, dpi=300)
+
+plt.show()
 
 #%% STMOM
 
@@ -3139,14 +3652,6 @@ for df_pred, label in predictions:
     else:
         # Merge on eom to keep everything in one wide table
         df_profit_collector = df_profit_collector.merge(df_profit, on='eom', how='outer')
-
-
-# ===========================================
-# Fama-French Test portfolios on the S&P 500
-# ===========================================
-
-
-
 
 
 # =============================================
